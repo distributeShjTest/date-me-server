@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="user_sql_map">
+    <resultMap id="user_map" class="com.date.me.model.po.User">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="pwd" column="pwd" jdbcType="VARCHAR"/>
+        <result property="isDelete" column="is_delete" jdbcType="INTEGER"/>
+    </resultMap>
+
+
+    <select id="query_for_id" parameterClass="java.util.Map" resultClass="INTEGER">
+        SELECT id from `user` where username=#username# and pwd=#pwd# and is_delete = 0;
+    </select>
+</sqlMap>

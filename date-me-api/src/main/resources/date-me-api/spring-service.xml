@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:task="http://www.springframework.org/schema/task" xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+    <import resource="classpath*:date-me-business/spring-service.xml" />
+
+
+    <!-- 开启自动扫描 -->
+    <context:component-scan base-package="com.date.me.api.service"></context:component-scan>
+    <!-- 启用注解-->
+    <context:annotation-config/>
+    <bean id="socketAccepter" class="com.date.me.api.net.socket.SocketAccecpter" init-method="init">
+        <property name="socketLisenerApply" ref="socketHandler"/>
+    </bean>
+    <bean id="socketHandler" class="com.date.me.api.net.socket.SocketHandler" init-method="init">
+        <property name="protocolPack" ref="protocolPack"/>
+        <property name="msgRecieveFromNet" ref="service"/>
+        <property name="socketAccecpter" ref="socketAccepter"/>
+    </bean>
+    <bean id="protocolAnalyze" class="com.date.me.api.protocol.impl.ProtocolAnalyze">
+        <property name="analyzes">
+            <list>
+                <ref bean="loginAnalyze"/>
+                <ref bean="msgSentAnalyze"/>
+                <ref bean="updateAnalyze"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="protocolPack" class="com.date.me.api.protocol.impl.ProtocolPackageImpl"></bean>
+
+    <bean id="loginAnalyze" class="com.date.me.api.protocol.impl.LoginAnalyze">
+        <property name="pidClientType" value="LOGIN"/>
+    </bean>
+
+    <bean id="msgSentAnalyze" class="com.date.me.api.protocol.impl.MsgSentAnalyze">
+        <property name="pidClientType" value="MAGSENT"/>
+    </bean>
+
+    <bean id="updateAnalyze" class="com.date.me.api.protocol.impl.UpdateAnalyze">
+        <property name="pidClientType" value="UPDATE"/>
+    </bean>
+
+    <bean id="bufferHandle" class="com.date.me.api.service.impl.BufferHandleImpl" init-method="init">
+        <!--<property name="updateWriteThread" ref="updateWriteThread"/>-->
+        <!--<property name="msgBufferWriteThread" ref="msgBufferWriteThread"/>-->
+    </bean>
+
+    <bean id="loginHandler" class="com.date.me.api.service.impl.LoginHandler">
+        <property name="userMsgSent" ref="socketHandler"/>
+        <property name="bufferHandle" ref="bufferHandle"/>
+        <property name="protocolPack" ref="protocolPack"/>
+        <property name="socketRequestHandler" ref="socketHandler"/>
+        <property name="objectType" value="LOGINPROTOCOL"/>
+    </bean>
+    <bean id="msgSentHandler" class="com.date.me.api.service.impl.MsgSentHandler">
+        <property name="protocolPack" ref="protocolPack"/>
+        <property name="bufferHandle" ref="bufferHandle"/>
+        <property name="userMsgSent" ref="socketHandler"/>
+        <property name="objectType" value="CLientMsg"/>
+    </bean>
+    <bean id="updateHandler" class="com.date.me.api.service.impl.UpdateHandler">
+        <property name="userMsgSent" ref="socketHandler"/>
+        <property name="protocolPack" ref="protocolPack"/>
+        <property name="objectType" value="UPDATE"/>
+
+
+    </bean>
+    <!--<bean id="msgBufferWriteThread" class="com.date.me.api.service.impl.MsgBufferWriteThread">-->
+    <!--</bean>-->
+    <!--<bean id="updateWriteThread" class="com.date.me.api.service.impl.UpdateWriteThread">-->
+    <!--</bean>-->
+    <bean id="service" class="com.date.me.api.service.impl.Service">
+        <property name="handlers">
+            <list>
+                <ref bean="loginHandler"/>
+                <ref bean="msgSentHandler"/>
+                <ref bean="updateHandler"/>
+            </list>
+        </property>
+        <property name="protocolAnalyze" ref="protocolAnalyze"/>
+        <property name="userMsgSent" ref="socketHandler"/>
+        <property name="protocolPackage" ref="protocolPack"/>
+    </bean>
+</beans>

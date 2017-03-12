@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="relation_sql_map">
+    <resultMap id="relation_map" class="com.date.me.model.po.Relation">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="frLowId" column="fr_low_id" jdbcType="INTEGER"/>
+        <result property="frHighId" column="fr_high_id" jdbcType="INTEGR"/>
+        <result property="isDelete" column="is_delete" jdbcType="INTEGER"/>
+    </resultMap>
+    <resultMap id="relation_name_map" class="com.date.me.model.po.Relation">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="frLowId" column="fr_low_id" jdbcType="INTEGER"/>
+        <result property="frLowUsername" column="fr_low_username" jdbcType="VARCHAR"/>
+        <result property="frHighId" column="fr_high_id" jdbcType="INTEGR"/>
+        <result property="frHighUsername" column="fr_high_username" jdbcType="VARCHAR"/>
+        <result property="isDelete" column="is_delete" jdbcType="INTEGER"/>
+    </resultMap>
+    <select id="query_for_relation_by_id" resultMap="relation_name_map" parameterClass="INTEGER">
+        SELECT `id`,`fr_low_id`,(SELECT `username` from `user` WHERE id = `fr_low_id` and is_delete=0) `fr_low_username`,`fr_high_id`,(SELECT `username` FROM `user` WHERE `id`=`fr_high_id`) `fr_high_username` ,`is_delete` FROM relation WHERE (fr_low_id=#fr_id# OR fr_high_id=#fr_id#) and is_delete=0;
+    </select>
+</sqlMap> 

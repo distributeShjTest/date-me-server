@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="massage_sql_map">
+    <resultMap id="massage_map" class="com.date.me.model.po.Massage">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="sendId" column="send_id" jdbcType="INTEGER"/>
+        <result property="time" column="time" jdbcType="BIGINT"/>
+        <result property="recieveId" column="recieve_id" jdbcType="INTEGER"/>
+        <result property="msgType" column="msg_type" jdbcType="INTEGER"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="isDelete" column="is_delete" jdbcType="INTEGER"/>
+        <result property="isBuffer" column="is_buffer" jdbcType="INTEGER"/>
+    </resultMap>
+
+
+    <select id="query_buffer_msg" parameterClass="Integer" resultMap="massage_map">
+        SELECT `id`,`send_id`,`time`,`recieve_id`,`msg_type`,`content`,`is_delete`,`is_buffer` FROM massage WHERE recieve_id=#recieveId# and is_delete=0 and is_buffer=1;
+    </select>
+
+    <update id="update_is_buffer_by_id" parameterClass="java.util.List">
+        UPDATE massage set is_buffer=0 where id in
+        <iterate open="(" conjunction="," close=")">
+            #ids[]#
+        </iterate>
+        ;
+    </update>
+
+    <insert id="insert_massage" parameterClass="java.util.List">
+        insert into massage (`id`,`send_id`,`time`,`recieve_id`,`msg_type`,`content`,`is_delete`,`is_buffer`) VALUES
+        <iterate conjunction=",">
+            (#list[].id#,#list[].sendId#,#list[].time#,#list[].recieveId#,#list[].msgType#,#list[].content#,#list[].isBuffer#)
+        </iterate>
+    </insert>
+</sqlMap>
